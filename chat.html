@@ -1,9 +1,127 @@
 <!DOCTYPE html>
-<html lang="vi"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chatbox</title>
-<script>
-const GROUPS=[{name:"Ảnh riêng tư",keywords:["ảnh","hình","mặt mộc","show mặt","gửi tấm hình","gủi ảnh"]}];
-function analyze(t){t=t.toLowerCase();let m=[];for(const g of GROUPS){for(const k of g.keywords){if(t.includes(k)){m.push(g);break;}}}return m;}
-</script>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chatbox An Toàn Online</title>
+<style>
+body{margin:0;font-family:Arial;background:#fff7e1}
+#app{max-width:480px;margin:0 auto;height:100vh;display:flex;flex-direction:column;background:#fff}
+header{background:#ffce8c;padding:14px;text-align:center;font-weight:700}
+#messages{flex:1;overflow:auto;padding:14px}
+.msg{max-width:80%;margin-bottom:10px;padding:10px;border-radius:10px}
+.bot{background:#ffe5b4;align-self:flex-start}
+.user{background:#fff3d1;align-self:flex-end}
+#input{display:flex;padding:10px;gap:8px;border-top:1px solid #eee;background:#fafafa}
+#text{flex:1;padding:10px;border-radius:6px;border:1px solid #ccc}
+button{background:#d48806;color:#fff;border:none;padding:10px 14px;border-radius:6px}
+.meta{font-size:12px;color:#666;margin-top:6px;text-align:center}
+.severity{display:inline-block;padding:6px 8px;border-radius:6px;font-weight:700;margin-left:8px}
+.s1{background:#e7f7e7;color:#0a7a4a}
+.s2{background:#fff6e0;color:#b36b00}
+.s3{background:#ffe6d6;color:#b35200}
+.s4{background:#ffd6d6;color:#a10f0f}
+.scenario{background:#fff0d9;padding:10px;border-radius:8px;margin-bottom:10px;font-weight:600}
+</style>
 </head>
-<body>Chatbox nâng cấp</body></html>
+<body>
+<div id="app">
+<header>🛡️ Chatbox An Toàn Online — Thân thiện</header>
+<div id="messages">
+  <div class="msg bot">Chào bạn 👋! Bấm 🎲 để tạo tình huống luyện phản xạ, hoặc nhập tin nhắn mà em nghi ngờ.</div>
+</div>
+<div class="meta">Phiên bản thân thiện — hệ thống trả lời nhiều phương án và đưa mức độ nguy hiểm.</div>
+<div id="input">
+  <button onclick="randomScenario()" title="Tạo tình huống ngẫu nhiên">🎲</button>
+  <input id="text" type="text" placeholder="Nhập tin nhắn hoặc trả lời tình huống..." />
+  <button onclick="send()">Gửi</button>
+</div>
+</div>
+
+<script>
+const GROUPS = [{"id": 1, "name": "Xin ảnh / video / camera", "severity": 4, "keywords": ["ảnh", "hình", "mặt mộc", "gửi ảnh", "gửi hình", "camera", "cam", "video call", "bật cam", "quay em", "clip", "video"], "friendly_replies": ["Ôi không nha — yêu cầu gửi ảnh riêng tư là nguy hiểm. Đừng gửi nhé!", "Đừng bật cam hay gửi hình cho người lạ. Giữ an toàn cho bản thân.", "Nếu ai ép gửi ảnh, em chặn và báo ngay người lớn hoặc thầy cô."], "preventions": ["Không gửi ảnh/video riêng tư cho người lạ.", "Không bật camera cho người không tin tưởng.", "Lưu bằng chứng và báo giáo viên/phụ huynh nếu bị ép."]}, {"id": 2, "name": "Xin vị trí / định vị", "severity": 4, "keywords": ["vị trí", "định vị", "gps", "location", "live location", "bật định vị", "share location", "vị trí em", "gửi location"], "friendly_replies": ["Không chia sẻ vị trí nha — đó là dấu hiệu nguy hiểm.", "Tắt chia sẻ vị trí và nói với người lớn nếu ai đó hỏi em mãi.", "Nếu họ cố ép định vị, chặn và báo thầy cô ngay."], "preventions": ["Không chia sẻ vị trí thật thời gian thực với người lạ.", "Tắt dịch vụ chia sẻ vị trí nếu không cần thiết.", "Dùng tính năng chặn/ẩn khi bị làm phiền."]}, {"id": 3, "name": "Dụ gặp mặt", "severity": 4, "keywords": ["ra cổng", "ra đây", "gặp anh", "gặp em", "ra ngoài", "ra trường", "ra cổng trường", "ra nhận", "ra lấy", "gặp riêng", "đợi em", "anh đợi"], "friendly_replies": ["Không đi gặp người quen trên mạng nhé — an toàn quan trọng hơn.", "Nếu ai hẹn gặp, em nói với phụ huynh hoặc thầy cô trước.", "Đừng đi một mình, nhất là tới chỗ vắng."], "preventions": ["Không gặp người quen online một mình.", "Luôn báo người lớn và gặp ở nơi công cộng, có người lớn đi cùng.", "Yêu cầu xác minh danh tính qua điện thoại của người thân."]}, {"id": 4, "name": "Giả danh (giáo viên, công an, bạn học)", "severity": 3, "keywords": ["cô chủ nhiệm", "thầy", "cô", "công an", "sở gd", "ngân hàng", "phụ huynh", "bạn cũ", "bạn cấp 1", "giáo viên", "điểm danh"], "friendly_replies": ["Cẩn thận nha — rất nhiều người giả danh. Em xác minh qua kênh chính thức đi.", "Công an/giáo viên không làm việc kiểu này qua chat, em gọi số chính thức để kiểm tra.", "Đừng gửi CCCD hay OTP cho ai tự xưng là cơ quan."], "preventions": ["Xác minh danh tính bằng cuộc gọi tới số chính thức.", "Không gửi thông tin cá nhân qua chat.", "Kiểm tra trên nhóm lớp hoặc liên hệ nhà trường."]}, {"id": 5, "name": "Đe dọa / tống tiền", "severity": 4, "keywords": ["tung ảnh", "đăng lên", "tống tiền", "không hợp tác", "biết nhà m", "đe dọa", "chuyển tiền", "đòi tiền"], "friendly_replies": ["Bình tĩnh đã — tống tiền là hành vi xấu. Đừng chuyển tiền!", "Lưu lại tin nhắn và báo ngay phụ huynh hoặc thầy cô.", "Nếu họ đe dọa, chặn và báo công an/nhà trường."], "preventions": ["Không chuyển tiền hay làm theo yêu cầu của kẻ xấu.", "Lưu bằng chứng, chụp màn hình mọi tin nhắn.", "Liên hệ người lớn và cơ quan chức năng khi cần."]}, {"id": 6, "name": "Học bổng / việc làm / casting", "severity": 3, "keywords": ["học bổng", "việc làm", "casting", "mẫu", "chụp hình", "lương cao", "đóng phí", "phí xác nhận", "cộng tác viên"], "friendly_replies": ["Cẩn thận với việc làm nhận tiền trước — thường là bẫy.", "Học bổng không thu phí xác nhận đâu, em kiểm tra thông tin chính thức.", "Đừng gửi giấy tờ hay ảnh cho người lạ để nhận việc."], "preventions": ["Không nộp phí để nhận học bổng hay việc.", "Yêu cầu thông tin chính thức và tham khảo nhà trường.", "Không gửi CCCD/ảnh cho người tuyển qua mạng."]}, {"id": 7, "name": "Quà tặng / shipper / nhận hàng", "severity": 3, "keywords": ["shipper", "nhận quà", "gói hàng", "bưu phẩm", "ra lấy", "quà miễn phí", "ship"], "friendly_replies": ["Đừng ra khỏi trường để nhận hàng từ người lạ nhé.", "Hỏi bảo vệ hoặc phụ huynh trước khi ra nhận đồ.", "Nếu họ đứng chờ, nói với bảo vệ ngay."], "preventions": ["Không nhận quà trực tiếp từ người lạ.", "Luôn nhận hàng tại địa điểm an toàn có bảo vệ.", "Xác minh nguồn gói hàng với người gửi."]}, {"id": 8, "name": "Vét thông tin cá nhân", "severity": 3, "keywords": ["cccd", "số phụ huynh", "địa chỉ", "lớp mấy", "tên bố mẹ", "số nhà", "địa chỉ nhà"], "friendly_replies": ["Không chia sẻ thông tin cá nhân qua chat nhé.", "Hỏi lý do rõ ràng và xác minh nếu cần.", "Nếu ai yêu cầu CCCD hay thông tin nhạy cảm, em từ chối."], "preventions": ["Không cung cấp giấy tờ tùy thân hoặc số điện thoại người nhà.", "Xác minh danh tính khi được yêu cầu thông tin.", "Báo nhà trường nếu ai đó hỏi thông tin quá nhiều."]}, {"id": 9, "name": "Deepfake / giọng gọi giả / video giả", "severity": 4, "keywords": ["deepfake", "giọng giống", "gọi gấp", "video của em", "clip nhạy", "camera bí mật", "quay lén"], "friendly_replies": ["Đừng tin ngay video hoặc cuộc gọi lạ — rất có thể là giả mạo.", "Gọi lại người thân bằng số chính thức để xác minh.", "Lưu bằng chứng và hỏi ý kiến người lớn."], "preventions": ["Không hành động ngay theo video/giọng gọi bất thường.", "Xác minh bằng cuộc gọi đến số quen thuộc.", "Báo cho người lớn nếu bị tấn công bằng deepfake."]}, {"id": 10, "name": "Thao túng cảm xúc", "severity": 3, "keywords": ["anh buồn", "chỉ có em", "đừng bỏ anh", "giúp anh", "anh cô đơn", "anh cần em"], "friendly_replies": ["Những câu kiểu này thường là thao túng cảm xúc, cẩn thận nha.", "Đừng để nịnh lời mà vội vàng làm theo họ.", "Nói chuyện với người tin cậy trước khi quyết định."], "preventions": ["Nhận diện dấu hiệu thao túng cảm xúc.", "Tham khảo ý kiến người lớn, bạn bè đáng tin.", "Không ra gặp hoặc gửi thông tin vì lý do tình cảm."]}, {"id": 11, "name": "Khẩn cấp giả (tai nạn, người thân)", "severity": 4, "keywords": ["tai nạn", "cấp cứu", "ba mẹ bị", "gặp chuyện", "gấp", "cứu giúp", "nhanh lên", "ra ngay"], "friendly_replies": ["Bình tĩnh! Gọi trực tiếp người thân để kiểm tra thông tin nha.", "Không di chuyển theo yêu cầu trước khi xác minh.", "Yêu cầu họ cung cấp bằng chứng chính thức nếu thực sự khẩn."], "preventions": ["Gọi số người thân để xác minh thông tin.", "Không rời khỏi nơi an toàn khi đang hoảng loạn.", "Báo cho người lớn và nhà trường nếu cần."]}, {"id": 12, "name": "Rủ đi nơi vắng / đường tắt", "severity": 4, "keywords": ["chỗ vắng", "sau trường", "hẻm", "lối tắt", "gặp riêng", "đi một mình", "đi lối này"], "friendly_replies": ["Chỗ vắng là không an toàn — đừng đi theo nha!", "Nếu ai rủ đi lối vắng, từ chối và tìm chỗ đông người.", "Báo ngay cho bạn bè hoặc người lớn nếu bị ép."], "preventions": ["Không đi theo người lạ vào khu vực vắng vẻ.", "Luôn ở nơi có người và có bảo vệ khi cần.", "Gọi người thân hoặc bảo vệ nếu cảm thấy bị đe dọa."]}];
+
+// Utility: find group matches by keyword
+function analyzeText(text){
+  const t = text.toLowerCase();
+  let matches = [];
+  for(const g of GROUPS){
+    for(const kw of g.keywords){
+      if(t.includes(kw)){
+        matches.push(g);
+        break;
+      }
+    }
+  }
+  return matches;
+}
+
+function severityLabel(sev){
+  if(sev>=4) return {label:"Rất cao", cls:"s4"};
+  if(sev==3) return {label:"Cao", cls:"s3"};
+  if(sev==2) return {label:"Trung bình", cls:"s2"};
+  return {label:"Thấp", cls:"s1"};
+}
+
+const SCENARIOS = [
+  "Anh đứng ngoài cổng, ra gặp anh 5 phút thôi.",
+  "Em gửi ảnh mặt mộc để nhận quà nha.",
+  "Bấm link này để xem ai nói xấu em.",
+  "Nạp hộ anh 100K, anh chuyển lại 300K.",
+  "Anh là nhân viên ngân hàng, tài khoản em đang bị hack.",
+  "Cô chủ nhiệm bảo em gửi CCCD để điểm danh.",
+  "Em dính vào vụ, cung cấp OTP ngay!",
+  "Em trúng sự kiện rồi, vào link nhận quà.",
+  "Ra quán net gần trường đi, anh chờ nè.",
+  "Gửi giọng nói để xác minh tài khoản.",
+  "Cho t xin số phụ huynh m, gấp!",
+  "Anh có clip của em rồi, chuyển tiền nếu không muốn đăng.",
+  "Em được chọn học bổng 100% nhưng cần đóng phí xác nhận 300K.",
+  "Anh đang chờ trước cổng trường, ra lấy trà sữa nhé.",
+  "File này có điểm của lớp mình, mở ra xem nhanh."
+];
+
+function addMsg(text, cls){
+  const box = document.getElementById("messages");
+  const d = document.createElement("div");
+  d.className = "msg " + cls;
+  d.textContent = text;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+
+function randomScenario(){
+  const s = SCENARIOS[Math.floor(Math.random()*SCENARIOS.length)];
+  addMsg("🎲 Tình huống: " + s, "bot");
+  const matches = analyzeText(s);
+  if(matches.length){
+    const g = matches[0];
+    const sev = severityLabel(g.severity);
+    addMsg("🔎 Nhóm: " + g.name + " — Mức nguy hiểm: " + sev.label, "bot");
+    addMsg("💡 Gợi ý phòng tránh: " + g.preventions.join(" / "), "bot");
+  }
+}
+
+function send(){
+  const input = document.getElementById("text");
+  const text = input.value.trim();
+  if(!text) return;
+  addMsg(text, "user");
+  input.value = "";
+  const matches = analyzeText(text);
+  if(matches.length==0){
+    addMsg("🤔 Mình chưa phát hiện từ khóa nguy hiểm rõ ràng. Nếu bạn lo lắng, mô tả thêm hoặc hỏi người lớn nhé.", "bot");
+    return;
+  }
+  let best = matches.reduce((a,b)=> a.severity>=b.severity? a : b);
+  const sev = severityLabel(best.severity);
+  const reply = best.friendly_replies[Math.floor(Math.random()*best.friendly_replies.length)];
+  addMsg("🔎 Nhóm: " + best.name + " — Mức nguy hiểm: " + sev.label + " (" + best.severity + "/4)", "bot");
+  addMsg(reply, "bot");
+  for(const p of best.preventions){
+    addMsg("• " + p, "bot");
+  }
+}
+</script>
+</body>
+</html>
