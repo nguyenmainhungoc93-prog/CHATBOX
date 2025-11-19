@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chatbox</title>
+<script>
+const GROUPS=[{name:"Ảnh riêng tư",keywords:["ảnh","hình","mặt mộc","show mặt","gửi tấm hình","gủi ảnh"]}];
+function analyze(t){t=t.toLowerCase();let m=[];for(const g of GROUPS){for(const k of g.keywords){if(t.includes(k)){m.push(g);break;}}}return m;}
+</script>
+</head>
+<body>Chatbox nâng cấp</body></html>
